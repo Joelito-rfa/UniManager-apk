@@ -66,7 +66,8 @@ class DioClient {
               }
             }
             await _storageService.clearTokens();
-          } catch (_) {
+          } catch (e) {
+            print('Error refreshing token: $e'); // Ajout d'un log pour le débogage
             await _storageService.clearTokens();
           } finally {
             _isRefreshing = false;
@@ -80,12 +81,15 @@ class DioClient {
   InterceptorsWrapper _loggingInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
+        print('Request: ${options.method} ${options.path}'); // Ajout d'un log
         handler.next(options);
       },
       onResponse: (response, handler) {
+        print('Response: ${response.statusCode} ${response.data}'); // Ajout d'un log
         handler.next(response);
       },
       onError: (error, handler) {
+        print('Error: ${error.message}'); // Ajout d'un log
         handler.next(error);
       },
     );
