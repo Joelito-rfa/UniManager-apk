@@ -5,6 +5,7 @@ import '../constants/api_constants.dart';
 import '../../config/app_config.dart';
 import '../../services/storage_service.dart';
 import '../errors/app_exception.dart';
+import 'dart:developer' as developer; // Import pour le logging
 
 final dioClientProvider = Provider<DioClient>((ref) {
   final storageService = ref.read(storageServiceProvider);
@@ -67,7 +68,7 @@ class DioClient {
             }
             await _storageService.clearTokens();
           } catch (e) {
-            print('Error refreshing token: $e'); // Ajout d'un log pour le débogage
+            developer.log('Error refreshing token: $e'); // Utilisation du logger
             await _storageService.clearTokens();
           } finally {
             _isRefreshing = false;
@@ -81,15 +82,15 @@ class DioClient {
   InterceptorsWrapper _loggingInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
-        print('Request: ${options.method} ${options.path}'); // Ajout d'un log
+        developer.log('Request: ${options.method} ${options.path}'); // Utilisation du logger
         handler.next(options);
       },
       onResponse: (response, handler) {
-        print('Response: ${response.statusCode} ${response.data}'); // Ajout d'un log
+        developer.log('Response: ${response.statusCode} ${response.data}'); // Utilisation du logger
         handler.next(response);
       },
       onError: (error, handler) {
-        print('Error: ${error.message}'); // Ajout d'un log
+        developer.log('Error: ${error.message}'); // Utilisation du logger
         handler.next(error);
       },
     );
