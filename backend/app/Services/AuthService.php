@@ -83,7 +83,7 @@ class AuthService
 
         return [
             'success' => true,
-            'token' => $token,
+            'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
             'user' => [
@@ -127,7 +127,7 @@ class AuthService
 
         return [
             'success' => true,
-            'token' => $token,
+            'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
             'user' => [
@@ -166,7 +166,7 @@ class AuthService
 
         return [
             'success' => true,
-            'token' => $token,
+            'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
             'user' => [
@@ -251,12 +251,12 @@ class AuthService
 
     public function refresh(): array
     {
-        $token = auth()->refresh();
+        $token = auth('api')->refresh();
         return [
             'success' => true,
-            'token' => $token,
+            'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
         ];
     }
 

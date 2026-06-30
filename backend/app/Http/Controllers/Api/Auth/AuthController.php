@@ -95,8 +95,15 @@ class AuthController extends Controller
 
     public function refresh(): JsonResponse
     {
-        $result = $this->authService->refresh();
-        return response()->json($result);
+        try {
+            $result = $this->authService->refresh();
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalide ou expiré',
+            ], 401);
+        }
     }
 
     public function me(): JsonResponse

@@ -35,7 +35,7 @@ class CourseResource extends JsonResource
             ]),
             'teacher' => $this->when($this->relationLoaded('teacher') && $this->teacher, fn() => [
                 'id' => $this->teacher->id,
-                'name' => $this->teacher->user->name ?? null,
+                'name' => $this->teacher->user?->name,
             ]),
             'classroom' => $this->when($this->relationLoaded('classroom'), fn() => [
                 'id' => $this->classroom?->id,

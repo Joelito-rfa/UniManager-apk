@@ -11,7 +11,7 @@ class Schedule extends Model
 
     protected $fillable = [
         'code', 'course_id', 'classroom_id', 'level_id', 'day_of_week', 'start_time',
-        'end_time', 'type'
+        'end_time', 'type', 'group', 'session', 'status'
     ];
 
     public function course()

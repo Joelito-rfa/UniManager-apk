@@ -59,7 +59,7 @@ class _CourseResourceFormScreenState extends ConsumerState<CourseResourceFormScr
             : type == 'document'
                 ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp']
                 : ['pdf'];
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: type == 'video' ? FileType.video : FileType.custom,
       allowedExtensions: type != 'video' ? allowedExtensions : null,
     );

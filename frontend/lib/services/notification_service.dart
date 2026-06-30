@@ -62,4 +62,13 @@ class NotificationService {
   Future<void> delete(int id) async {
     await _dioClient.delete('${ApiConstants.notifications}/$id');
   }
+
+  Future<bool> createNotification(Map<String, dynamic> data) async {
+    try {
+      final response = await _dioClient.post(ApiConstants.notifications, data: data);
+      return response.data['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

@@ -22,7 +22,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(dashboardProvider.notifier).loadStudentDashboard();
+      final auth = ref.read(authProvider);
+      if (auth.status == AuthStatus.authenticated) {
+        ref.read(dashboardProvider.notifier).loadStudentDashboard();
+      }
     });
   }
 
@@ -30,11 +33,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final state = ref.watch(dashboardProvider);
+
+    return RefreshIndicator(
+      onRefresh: () => ref.read(dashboardProvider.notifier).loadStudentDashboard(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: _buildContent(theme, state),
+      ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme, DashboardState state) {
     final now = DateTime.now();
     final today = DateFormat('EEEE d MMMM', 'fr_FR').format(now);
 
     if (state.isLoading) {
-      return const LoadingWidget(message: 'Chargement...');
+      return const SizedBox(
+        height: 400,
+        child: LoadingWidget(message: 'Chargement...'),
+      );
     }
     if (state.error != null) {
       return AppErrorWidget(
@@ -43,7 +60,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       );
     }
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -59,6 +59,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cours')),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/admin/courses/add'),
         child: const Icon(Icons.add_rounded),

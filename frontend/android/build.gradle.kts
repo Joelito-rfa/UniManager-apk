@@ -14,8 +14,18 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
-subprojects {
+
+    afterEvaluate {
+        val android = extensions.findByName("android") ?: return@afterEvaluate
+        if (android is com.android.build.api.dsl.LibraryExtension) {
+            android.compileSdk = 36
+        } else {
+            try {
+                android::class.java.getMethod("setCompileSdk", Int::class.java).invoke(android, 36)
+            } catch (_: Exception) {}
+        }
+    }
+
     project.evaluationDependsOn(":app")
 }
 

@@ -65,6 +65,7 @@ class ApiConstants {
   static const String levelsList = '/levels';
   static const String updateProfile = '/auth/me';
   static const String changePassword = '/auth/change-password';
+  static const String generateInvitationCode = '/admin/auth/generate-invitation';
 
   static const String teacherResources = '/teacher/courses';
   static const String adminResources = '/admin/courses';

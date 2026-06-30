@@ -270,6 +270,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  void forceLogout() {
+    state = const AuthState(status: AuthStatus.unauthenticated);
+  }
+
   void clearError() {
     state = state.copyWith(clearError: true);
   }

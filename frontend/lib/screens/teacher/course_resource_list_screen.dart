@@ -1,8 +1,11 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_file/open_file.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/constants/api_constants.dart';
 import '../../providers/course_resource_provider.dart';
 import '../../models/course_model.dart';
@@ -88,99 +91,145 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
   }
 
   Widget _buildResourceCard(ThemeData theme, CourseResourceModel resource) {
-    IconData icon;
-    Color iconColor;
-    switch (resource.type) {
-      case 'pdf':
-        icon = Icons.picture_as_pdf_rounded;
-        iconColor = const Color(0xFFE11D48);
-        break;
-      case 'video':
-        icon = Icons.videocam_rounded;
-        iconColor = const Color(0xFF6366F1);
-        break;
-      case 'link':
-        icon = Icons.link_rounded;
-        iconColor = const Color(0xFF0EA5E9);
-        break;
-      default:
-        icon = Icons.description_rounded;
-        iconColor = const Color(0xFF10B981);
-    }
+    final isVideo = resource.type == 'video';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          if (resource.fileUrl != null || resource.filePath != null || resource.url != null) {
+            context.push('/teacher/resources/${resource.id}/view', extra: resource);
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(20),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          resource.title,
-                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+            if (isVideo && resource.thumbnailUrl != null)
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: resource.thumbnailUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      placeholder: (_, __) => Container(color: const Color(0xFF6366F1).withAlpha(20)),
+                      errorWidget: (_, __, ___) => Container(color: const Color(0xFF6366F1).withAlpha(20)),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        icon: Icon(Icons.delete_outlined, color: Colors.white, size: 20,
+                          shadows: [Shadow(color: Colors.black54, blurRadius: 4)]),
+                        onPressed: () => _confirmDelete(resource),
                       ),
-                      if (!resource.isPublished)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withAlpha(20),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.orange.withAlpha(80)),
-                          ),
-                          child: Text(
-                            'Brouillon',
-                            style: TextStyle(
-                              color: Colors.orange.shade700,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                    ),
+                  ],
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.all(isVideo && resource.thumbnailUrl != null ? 8 : 14),
+              child: Row(
+                children: [
+                  if (!(isVideo && resource.thumbnailUrl != null))
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _iconColor(resource.type).withAlpha(20),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(_iconData(resource.type), color: _iconColor(resource.type), size: 24),
+                    ),
+                  if (!(isVideo && resource.thumbnailUrl != null))
+                    const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                resource.title,
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
+                            if (!resource.isPublished)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withAlpha(20),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.orange.withAlpha(80)),
+                                ),
+                                child: Text(
+                                  'Brouillon',
+                                  style: TextStyle(
+                                    color: Colors.orange.shade700,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    resource.type.toUpperCase(),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: iconColor,
-                      fontWeight: FontWeight.w500,
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              resource.type.toUpperCase(),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: _iconColor(resource.type),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (resource.fileSizeFormatted != null) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                '• ${resource.fileSizeFormatted}',
+                                style: theme.textTheme.bodySmall?.copyWith(color: Colors.white),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  if (resource.fileSizeFormatted != null)
-                    Text(
-                      resource.fileSizeFormatted!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
-                      ),
+                  if (!(isVideo && resource.thumbnailUrl != null))
+                    IconButton(
+                      icon: Icon(Icons.delete_outlined, color: theme.colorScheme.error, size: 20),
+                      onPressed: () => _confirmDelete(resource),
                     ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.delete_outlined, color: theme.colorScheme.error, size: 20),
-              onPressed: () => _confirmDelete(resource),
             ),
           ],
         ),
       ),
     );
+  }
+
+  IconData _iconData(String type) {
+    switch (type) {
+      case 'pdf': return Icons.picture_as_pdf_rounded;
+      case 'video': return Icons.videocam_rounded;
+      case 'link': return Icons.link_rounded;
+      default: return Icons.description_rounded;
+    }
+  }
+
+  Color _iconColor(String type) {
+    switch (type) {
+      case 'pdf': return const Color(0xFFE11D48);
+      case 'video': return const Color(0xFF6366F1);
+      case 'link': return const Color(0xFF0EA5E9);
+      default: return const Color(0xFF10B981);
+    }
   }
 
   void _showAddDialog() {
@@ -268,7 +317,7 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
                                 icon: const Icon(Icons.remove_red_eye_rounded, size: 18),
                                 tooltip: 'Aperçu',
                                 onPressed: () async {
-                                  if (selectedFilePathFull != null) {
+                                  if (!kIsWeb && selectedFilePathFull != null) {
                                     await OpenFile.open(selectedFilePathFull!);
                                   }
                                 },
@@ -289,7 +338,7 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
                                   : type == 'video'
                                       ? ['mp4', 'mov', 'avi']
                                       : ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar'];
-                              final result = await FilePicker.platform.pickFiles(
+                              final result = await FilePicker.pickFiles(
                                 type: type == 'video' ? FileType.video : FileType.custom,
                                 allowedExtensions: type != 'video' ? allowedExtensions : null,
                                 withData: true,
@@ -299,7 +348,7 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
                                 setDialogState(() {
                                   selectedFilePath = file.name;
                                   selectedFileBytes = file.bytes;
-                                  selectedFilePathFull = file.path;
+                                  selectedFilePathFull = kIsWeb ? null : file.path;
                                 });
                               }
                             },
@@ -316,7 +365,7 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
                           : type == 'video'
                               ? ['mp4', 'mov', 'avi']
                               : ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar'];
-                      final result = await FilePicker.platform.pickFiles(
+                      final result = await FilePicker.pickFiles(
                         type: type == 'video' ? FileType.video : FileType.custom,
                         allowedExtensions: type != 'video' ? allowedExtensions : null,
                         withData: true,
@@ -326,7 +375,7 @@ class _CourseResourceListScreenState extends ConsumerState<CourseResourceListScr
                         setDialogState(() {
                           selectedFilePath = file.name;
                           selectedFileBytes = file.bytes;
-                          selectedFilePathFull = file.path;
+                          selectedFilePathFull = kIsWeb ? null : file.path;
                         });
                       }
                     },

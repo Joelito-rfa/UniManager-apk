@@ -15,6 +15,7 @@ class TeacherScheduleController extends Controller
         $schedules = Schedule::with(['course.subject', 'course.teacher.user', 'classroom', 'level'])
             ->when($request->day_of_week, fn($q, $v) => $q->where('day_of_week', $v))
             ->when($request->status, fn($q, $v) => $q->where('status', $v))
+            ->when($request->course_id, fn($q, $v) => $q->where('course_id', $v))
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();

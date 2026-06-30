@@ -109,8 +109,8 @@ class CourseResourceNotifier extends StateNotifier<CourseResourceState> {
 
   Future<File?> downloadResource(String endpoint, String savePath) async {
     try {
-      final file = await _dioClient.download(endpoint, savePath);
-      return file;
+      await _dioClient.download(endpoint, savePath);
+      return File(savePath);
     } catch (e) {
       state = state.copyWith(error: e.toString());
       return null;

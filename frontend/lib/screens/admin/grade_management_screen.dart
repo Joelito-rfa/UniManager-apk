@@ -91,7 +91,7 @@ class _GradeManagementScreenState extends ConsumerState<GradeManagementScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

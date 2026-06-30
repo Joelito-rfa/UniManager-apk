@@ -1,4 +1,4 @@
-package com.unimanager.unimanger_app
+package com.unimanager.app
 
 import io.flutter.embedding.android.FlutterActivity
 

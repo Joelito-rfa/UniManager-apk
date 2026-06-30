@@ -10,6 +10,29 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string|max:1000',
+            'type' => 'nullable|string|max:50',
+        ]);
+
+        $notification = Notification::create([
+            'user_id' => auth()->id(),
+            'type' => $validated['type'] ?? 'info',
+            'title' => $validated['title'],
+            'message' => $validated['message'],
+            'data' => $request->except(['title', 'message', 'type']),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification créée avec succès',
+            'data' => new NotificationResource($notification),
+        ], 201);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $notifications = Notification::where('user_id', auth()->id())

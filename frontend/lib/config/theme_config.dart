@@ -46,7 +46,7 @@ class ThemeConfig {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFFF8F7FF),
+      scaffoldBackgroundColor: Colors.white,
       textTheme: GoogleFonts.interTextTheme().copyWith(
         displayLarge: GoogleFonts.inter(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5, height: 1.2),
         displayMedium: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.25, height: 1.25),
@@ -117,7 +117,7 @@ class ThemeConfig {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withAlpha(100),
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -184,9 +184,10 @@ class ThemeConfig {
         thickness: WidgetStateProperty.all(4),
         thumbVisibility: WidgetStateProperty.all(true),
       ),
-      drawerTheme: DrawerThemeData(
+      drawerTheme: const DrawerThemeData(
         elevation: 0,
-        shape: const RoundedRectangleBorder(
+        width: 280,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
@@ -198,7 +199,7 @@ class ThemeConfig {
       dropdownMenuTheme: DropdownMenuThemeData(
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest.withAlpha(100),
+          fillColor: Colors.white,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant)),
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 1.5)),
@@ -393,9 +394,10 @@ class ThemeConfig {
         thickness: WidgetStateProperty.all(4),
         thumbVisibility: WidgetStateProperty.all(true),
       ),
-      drawerTheme: DrawerThemeData(
+      drawerTheme: const DrawerThemeData(
         elevation: 0,
-        shape: const RoundedRectangleBorder(
+        width: 280,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),

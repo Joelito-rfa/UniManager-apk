@@ -5,6 +5,14 @@ import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/error_widget.dart';
 import '../../widgets/common/empty_state.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/constants/api_constants.dart';
+import '../../core/network/dio_client.dart';
+import '../../models/course_model.dart';
+
+const _dayToFrench = {
+  'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi',
+  'Thursday': 'Jeudi', 'Friday': 'Vendredi', 'Saturday': 'Samedi', 'Sunday': 'Dimanche',
+};
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -14,12 +22,35 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 }
 
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
+  List<CourseModel> _courses = [];
+  int? _selectedCourseId;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCourses();
       ref.read(scheduleProvider.notifier).loadSchedules(role: 'teacher');
     });
+  }
+
+  Future<void> _loadCourses() async {
+    try {
+      final dio = ref.read(dioClientProvider);
+      final response = await dio.get(ApiConstants.teacherCourses);
+      final data = response.data;
+      final list = (data['data'] as List)
+          .map((json) => CourseModel.fromJson(json))
+          .toList();
+      if (mounted) setState(() { _courses = list; });
+    } catch (_) {}
+  }
+
+  Future<void> _reload() async {
+    ref.read(scheduleProvider.notifier).loadSchedules(
+      role: 'teacher',
+      filters: _selectedCourseId != null ? {'course_id': _selectedCourseId} : null,
+    );
   }
 
   @override
@@ -35,12 +66,38 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _buildBody(ScheduleState state) {
     final theme = Theme.of(context);
     if (state.isLoading) return const LoadingWidget(message: "Chargement de l'emploi du temps...");
-    if (state.error != null) return AppErrorWidget(message: state.error!, onRetry: () => ref.read(scheduleProvider.notifier).loadSchedules(role: 'teacher'));
+    if (state.error != null && state.schedules.isEmpty) return AppErrorWidget(message: state.error!, onRetry: _reload);
 
     return DefaultTabController(
       length: 5,
       child: Column(
         children: [
+          if (_courses.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: DropdownButtonFormField<int?>(
+                initialValue: _selectedCourseId,
+                decoration: InputDecoration(
+                  labelText: 'Filtrer par matière',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+                  isDense: true,
+                ),
+                items: [
+                  DropdownMenuItem(value: null, child: Text('Toutes les matières', style: theme.textTheme.bodyMedium)),
+                  ..._courses.map((c) => DropdownMenuItem(value: c.id, child: Text(c.subjectName ?? '', overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyMedium))),
+                ],
+                onChanged: (v) {
+                  setState(() => _selectedCourseId = v);
+                  ref.read(scheduleProvider.notifier).loadSchedules(
+                    role: 'teacher',
+                    filters: v != null ? {'course_id': v} : null,
+                  );
+                },
+              ),
+            ),
           Container(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             decoration: BoxDecoration(
@@ -61,7 +118,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             child: TabBarView(
               children: AppConstants.weekDays.take(5).map((day) {
                 final daySchedules = state.schedules
-                    .where((s) => s.dayOfWeek.toLowerCase() == day.toLowerCase())
+                    .where((s) => s.dayOfWeek.toLowerCase() == (_dayToFrench.keys.firstWhere(
+                      (k) => _dayToFrench[k] == day, orElse: () => day,
+                    )).toLowerCase())
                     .toList()
                   ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
@@ -74,7 +133,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: () => ref.read(scheduleProvider.notifier).loadSchedules(role: 'teacher'),
+                  onRefresh: _reload,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: daySchedules.length,

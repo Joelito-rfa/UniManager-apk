@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../core/localization/app_strings.dart';
 
 class SidebarItem {
   final IconData icon;
@@ -63,9 +64,10 @@ class _SidebarState extends ConsumerState<Sidebar> {
     final user = authState.user;
     final role = user?.role ?? 'student';
     final location = GoRouterState.of(context).uri.toString();
+    final s = ref.watch(appStringsProvider);
 
     final notificationState = ref.watch(notificationProvider);
-    final items = _getNavigationItems(role, notificationState.unreadCount);
+    final items = _getNavigationItems(role, notificationState.unreadCount, s);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -357,11 +359,12 @@ class _SidebarState extends ConsumerState<Sidebar> {
   }
 
   Widget _buildRoleBadge(String role) {
+    final s = ref.watch(appStringsProvider);
     final label = role == 'admin'
-        ? 'Admin'
+        ? s.admin
         : role == 'teacher'
-            ? 'Professeur'
-            : 'Étudiant';
+            ? s.professor
+            : s.student;
     final color = role == 'admin'
         ? const Color(0xFF818CF8)
         : role == 'teacher'
@@ -387,6 +390,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
   }
 
   Widget _buildLogoutSection(ThemeData theme) {
+    final s = ref.watch(appStringsProvider);
     return Container(
       padding: EdgeInsets.all(widget.isCollapsed ? 12 : 16),
       decoration: BoxDecoration(
@@ -432,7 +436,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
                 child: widget.isCollapsed
                     ? const SizedBox.shrink()
                     : Text(
-                        'Déconnexion',
+                        s.logout,
                         style: TextStyle(
                           color: const Color(0xFFEF4444),
                           fontSize: 14,
@@ -480,226 +484,226 @@ class _SidebarState extends ConsumerState<Sidebar> {
     );
   }
 
-  List<SidebarItem> _getNavigationItems(String role, int unreadCount) {
+  List<SidebarItem> _getNavigationItems(String role, int unreadCount, AppStrings s) {
     switch (role) {
       case 'admin':
         return [
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.dashboard_outlined,
             activeIcon: Icons.dashboard_rounded,
-            label: 'Tableau de bord',
+            label: s.dashboard,
             route: '/admin/dashboard',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.people_outlined,
             activeIcon: Icons.people_rounded,
-            label: 'Étudiants',
+            label: s.students,
             route: '/admin/students',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.person_outlined,
             activeIcon: Icons.person_rounded,
-            label: 'Enseignants',
+            label: s.teachers,
             route: '/admin/teachers',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.business_outlined,
             activeIcon: Icons.business_rounded,
-            label: 'Départements',
+            label: s.departments,
             route: '/admin/departments',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.school_outlined,
             activeIcon: Icons.school_rounded,
-            label: 'Filières',
+            label: s.programs,
             route: '/admin/programs',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.book_outlined,
             activeIcon: Icons.book_rounded,
-            label: 'Matières',
+            label: s.subjects,
             route: '/admin/subjects',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.menu_book_outlined,
             activeIcon: Icons.menu_book_rounded,
-            label: 'Cours',
+            label: s.courses,
             route: '/admin/courses',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.meeting_room_outlined,
             activeIcon: Icons.meeting_room_rounded,
-            label: 'Salles',
+            label: s.classrooms,
             route: '/admin/classrooms',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.calendar_month_outlined,
             activeIcon: Icons.calendar_month_rounded,
-            label: 'Emplois',
+            label: s.schedules,
             route: '/admin/schedules',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.assignment_outlined,
             activeIcon: Icons.assignment_rounded,
-            label: 'Inscriptions',
+            label: s.enrollments,
             route: '/admin/enrollments',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.grade_outlined,
             activeIcon: Icons.grade_rounded,
-            label: 'Notes',
+            label: s.grades,
             route: '/admin/grades',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.assessment_outlined,
             activeIcon: Icons.assessment_rounded,
-            label: 'Résultats',
+            label: s.results,
             route: '/admin/results',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.trending_up_rounded,
             activeIcon: Icons.trending_up_rounded,
-            label: 'Admissions',
+            label: s.admissions,
             route: '/admin/admissions',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.quiz_outlined,
             activeIcon: Icons.quiz_rounded,
-            label: 'Examens',
+            label: s.exams,
             route: '/admin/exams',
           ),
           SidebarItem(
             icon: Icons.notifications_outlined,
             activeIcon: Icons.notifications_rounded,
-            label: 'Notifications',
+            label: s.notifications,
             route: '/admin/notifications',
             badgeCount: unreadCount,
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.chat_outlined,
             activeIcon: Icons.chat_rounded,
-            label: 'Messagerie',
+            label: s.messaging,
             route: '/admin/messaging',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.settings_outlined,
             activeIcon: Icons.settings_rounded,
-            label: 'Paramètres',
+            label: s.settings,
             route: '/admin/settings',
           ),
         ];
       case 'teacher':
         return [
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.dashboard_outlined,
             activeIcon: Icons.dashboard_rounded,
-            label: 'Tableau de bord',
+            label: s.dashboard,
             route: '/teacher/dashboard',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.menu_book_outlined,
             activeIcon: Icons.menu_book_rounded,
-            label: 'Mes cours',
+            label: s.myCourses,
             route: '/teacher/courses',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.calendar_month_outlined,
             activeIcon: Icons.calendar_month_rounded,
-            label: 'Emploi du temps',
+            label: s.schedules,
             route: '/teacher/schedule',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.quiz_outlined,
             activeIcon: Icons.quiz_rounded,
-            label: 'Examens',
+            label: s.exams,
             route: '/teacher/exams',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.grade_outlined,
             activeIcon: Icons.grade_rounded,
-            label: 'Saisie des notes',
+            label: s.gradeEntry,
             route: '/teacher/grades',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.people_outlined,
             activeIcon: Icons.people_rounded,
-            label: 'Étudiants',
+            label: s.students,
             route: '/teacher/students',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.assessment_outlined,
             activeIcon: Icons.assessment_rounded,
-            label: 'Résultats',
+            label: s.results,
             route: '/teacher/results',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.chat_outlined,
             activeIcon: Icons.chat_rounded,
-            label: 'Messagerie',
+            label: s.messaging,
             route: '/teacher/messaging',
           ),
           SidebarItem(
             icon: Icons.notifications_outlined,
             activeIcon: Icons.notifications_rounded,
-            label: 'Notifications',
+            label: s.notifications,
             route: '/teacher/notifications',
             badgeCount: unreadCount,
           ),
         ];
       case 'student':
         return [
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.dashboard_outlined,
             activeIcon: Icons.dashboard_rounded,
-            label: 'Tableau de bord',
+            label: s.dashboard,
             route: '/student/dashboard',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.folder_outlined,
             activeIcon: Icons.folder_rounded,
-            label: 'Ressources',
+            label: s.resources,
             route: '/student/resources',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.menu_book_outlined,
             activeIcon: Icons.menu_book_rounded,
-            label: 'Cours',
+            label: s.courses,
             route: '/student/courses',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.quiz_outlined,
             activeIcon: Icons.quiz_rounded,
-            label: 'Examens',
+            label: s.exams,
             route: '/student/exams',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.grade_outlined,
             activeIcon: Icons.grade_rounded,
-            label: 'Mes notes',
+            label: s.myGrades,
             route: '/student/grades',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.calendar_month_outlined,
             activeIcon: Icons.calendar_month_rounded,
-            label: 'Emploi du temps',
+            label: s.schedules,
             route: '/student/schedule',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.assessment_outlined,
             activeIcon: Icons.assessment_rounded,
-            label: 'Résultats',
+            label: s.results,
             route: '/student/results',
           ),
-          const SidebarItem(
+          SidebarItem(
             icon: Icons.chat_outlined,
             activeIcon: Icons.chat_rounded,
-            label: 'Messagerie',
+            label: s.messaging,
             route: '/student/messaging',
           ),
           SidebarItem(
             icon: Icons.notifications_outlined,
             activeIcon: Icons.notifications_rounded,
-            label: 'Notifications',
+            label: s.notifications,
             route: '/student/notifications',
             badgeCount: unreadCount,
           ),

@@ -55,12 +55,12 @@ Route::post('auth/check/student', [AuthController::class, 'checkStudent']);
 Route::post('auth/check/teacher', [AuthController::class, 'checkTeacher']);
 Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('auth/refresh', [AuthController::class, 'refresh']);
 
 // Routes protégées
 Route::middleware('auth:api')->group(function () {
     // Auth
     Route::post('auth/logout', [AuthController::class, 'logout']);
-    Route::post('auth/refresh', [AuthController::class, 'refresh']);
     Route::get('auth/me', [AuthController::class, 'me']);
     Route::put('auth/me', [AuthController::class, 'updateProfile']);
     Route::post('auth/change-password', [AuthController::class, 'changePassword']);
@@ -162,6 +162,7 @@ Route::middleware('auth:api')->group(function () {
 
     // Notifications (tous les rôles)
     Route::get('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::post('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'store']);
     Route::get('notifications/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
     Route::put('notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
     Route::put('notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);

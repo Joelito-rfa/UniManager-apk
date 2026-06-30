@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -241,7 +242,7 @@ class _AdminCourseResourceListScreenState extends ConsumerState<AdminCourseResou
                                 icon: const Icon(Icons.remove_red_eye_rounded, size: 18),
                                 tooltip: 'Aperçu',
                                 onPressed: () async {
-                                  if (selectedFilePathFull != null) {
+                                  if (!kIsWeb && selectedFilePathFull != null) {
                                     await OpenFile.open(selectedFilePathFull!);
                                   }
                                 },
@@ -262,7 +263,7 @@ class _AdminCourseResourceListScreenState extends ConsumerState<AdminCourseResou
                                   : type == 'video'
                                       ? ['mp4', 'mov', 'avi']
                                       : ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar'];
-                              final result = await FilePicker.platform.pickFiles(
+                              final result = await FilePicker.pickFiles(
                                 type: type == 'video' ? FileType.video : FileType.custom,
                                 allowedExtensions: type != 'video' ? allowedExtensions : null,
                                 withData: true,
@@ -272,7 +273,7 @@ class _AdminCourseResourceListScreenState extends ConsumerState<AdminCourseResou
                                 setDialogState(() {
                                   selectedFilePath = file.name;
                                   selectedFileBytes = file.bytes;
-                                  selectedFilePathFull = file.path;
+                                  selectedFilePathFull = kIsWeb ? null : file.path;
                                 });
                               }
                             },
@@ -289,7 +290,7 @@ class _AdminCourseResourceListScreenState extends ConsumerState<AdminCourseResou
                           : type == 'video'
                               ? ['mp4', 'mov', 'avi']
                               : ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar'];
-                      final result = await FilePicker.platform.pickFiles(
+                      final result = await FilePicker.pickFiles(
                         type: type == 'video' ? FileType.video : FileType.custom,
                         allowedExtensions: type != 'video' ? allowedExtensions : null,
                         withData: true,
@@ -299,7 +300,7 @@ class _AdminCourseResourceListScreenState extends ConsumerState<AdminCourseResou
                         setDialogState(() {
                           selectedFilePath = file.name;
                           selectedFileBytes = file.bytes;
-                          selectedFilePathFull = file.path;
+                          selectedFilePathFull = kIsWeb ? null : file.path;
                         });
                       }
                     },

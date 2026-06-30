@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../providers/auth_provider.dart';
@@ -258,7 +259,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go('/$role/dashboard'),
             ),
           ),
           SliverPadding(
@@ -276,6 +277,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ]),
                 ] + _buildStatsSection(theme, role) + <Widget>[
                   const SizedBox(height: 32),
+                  _buildChangePasswordButton(theme),
+                  const SizedBox(height: 24),
                   Center(
                     child: Text(
                       '${AppConfig.appName} v1.0.0',
@@ -342,6 +345,57 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ];
     }
     return <Widget>[];
+  }
+
+  Widget _buildChangePasswordButton(ThemeData theme) {
+    return InkWell(
+      onTap: () => context.go('/change-password'),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withAlpha(80)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black.withAlpha(6),
+              blurRadius: 12,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE11D48).withAlpha(15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.lock_rounded, color: Color(0xFFE11D48), size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Sécurité',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontSize: 12)),
+                    const SizedBox(height: 2),
+                    Text('Changer le mot de passe',
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.outlineVariant, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionTitle(ThemeData theme, IconData icon, String title) {

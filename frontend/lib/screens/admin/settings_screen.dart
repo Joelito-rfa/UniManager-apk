@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/forms/app_text_field.dart';
 import '../../core/utils/validators.dart';
 
@@ -78,6 +80,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildAvatarSection(theme, user),
             const SizedBox(height: 24),
             _buildProfileSection(theme),
+            const SizedBox(height: 24),
+            _buildInvitationSection(theme),
             const SizedBox(height: 24),
             _buildSecuritySection(theme),
           ],
@@ -242,6 +246,113 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildInvitationSection(ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF10B981).withAlpha(20),
+                  ),
+                  child: const Icon(Icons.card_giftcard_rounded, color: Color(0xFF10B981), size: 22),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Codes d\'invitation administrateur',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Générez des codes d\'invitation pour permettre à de nouveaux administrateurs de créer un compte.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: FilledButton.icon(
+                onPressed: () => _generateInvitationCode(),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Générer un code'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _generateInvitationCode() async {
+    final authService = ref.read(authServiceProvider);
+    final result = await authService.generateInvitationCode();
+
+    if (!mounted) return;
+
+    if (result.success && result.data != null) {
+      await Clipboard.setData(ClipboardData(text: result.data!));
+      if (mounted) {
+        final localTheme = Theme.of(context);
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Code d\'invitation généré'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Voici le code d\'invitation (copié dans le presse-papier) :'),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: localTheme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: SelectableText(
+                    result.data!,
+                    style: localTheme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ce code est à usage unique. Donnez-le au nouvel administrateur pour qu\'il crée son compte.',
+                  style: localTheme.textTheme.bodySmall?.copyWith(color: localTheme.colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Fermer'),
+              ),
+            ],
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message ?? 'Erreur lors de la génération'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFFE11D48),
+        ),
+      );
+    }
   }
 
   Widget _buildSecuritySection(ThemeData theme) {

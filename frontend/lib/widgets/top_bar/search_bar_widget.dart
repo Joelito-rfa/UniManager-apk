@@ -59,7 +59,7 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
         link: _layerLink,
         offset: const Offset(0, 44),
         targetAnchor: Alignment.topLeft,
-        child: _buildSearchDropdown(theme, searchState),
+        child: _buildSearchDropdown(theme, searchState, s),
       ),
       child: CompositedTransformTarget(
         link: _layerLink,
@@ -96,7 +96,7 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
     );
   }
 
-  Widget _buildSearchDropdown(ThemeData theme, SearchState searchState) {
+  Widget _buildSearchDropdown(ThemeData theme, SearchState searchState, AppStrings s) {
     if (searchState.isLoading) {
       return Container(
         width: 320,
@@ -114,13 +114,13 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
     if (results == null || results.isEmpty) return const SizedBox.shrink();
 
     final sections = <_SearchSection>[
-      if (results.students.isNotEmpty) _SearchSection('Étudiants', Icons.school_rounded, results.students, 'student'),
-      if (results.teachers.isNotEmpty) _SearchSection('Enseignants', Icons.person_rounded, results.teachers, 'teacher'),
-      if (results.departments.isNotEmpty) _SearchSection('Départements', Icons.business_rounded, results.departments, 'department'),
-      if (results.programs.isNotEmpty) _SearchSection('Filières', Icons.account_tree_rounded, results.programs, 'program'),
-      if (results.subjects.isNotEmpty) _SearchSection('Matières', Icons.book_rounded, results.subjects, 'subject'),
-      if (results.courses.isNotEmpty) _SearchSection('Cours', Icons.menu_book_rounded, results.courses, 'course'),
-      if (results.classrooms.isNotEmpty) _SearchSection('Salles', Icons.meeting_room_rounded, results.classrooms, 'classroom'),
+      if (results.students.isNotEmpty) _SearchSection(s.students, Icons.school_rounded, results.students, 'student'),
+      if (results.teachers.isNotEmpty) _SearchSection(s.teachers, Icons.person_rounded, results.teachers, 'teacher'),
+      if (results.departments.isNotEmpty) _SearchSection(s.departments, Icons.business_rounded, results.departments, 'department'),
+      if (results.programs.isNotEmpty) _SearchSection(s.programs, Icons.account_tree_rounded, results.programs, 'program'),
+      if (results.subjects.isNotEmpty) _SearchSection(s.subjects, Icons.book_rounded, results.subjects, 'subject'),
+      if (results.courses.isNotEmpty) _SearchSection(s.courses, Icons.menu_book_rounded, results.courses, 'course'),
+      if (results.classrooms.isNotEmpty) _SearchSection(s.classrooms, Icons.meeting_room_rounded, results.classrooms, 'classroom'),
     ];
 
     return Container(

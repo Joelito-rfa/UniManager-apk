@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/api_constants.dart';
 import '../core/network/dio_client.dart';
@@ -61,8 +62,24 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
         state = state.copyWith(isLoading: false, error: data['message']);
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractError(e));
     }
+  }
+
+  String _extractError(Object e) {
+    if (e is DioException && e.response?.data is Map) {
+      final data = e.response!.data as Map;
+      final msg = data['message']?.toString() ?? '';
+      final errors = data['errors'];
+      if (errors is Map && errors.isNotEmpty) {
+        final firstError = errors.values.first;
+        if (firstError is List && firstError.isNotEmpty) {
+          return firstError.first.toString();
+        }
+      }
+      if (msg.isNotEmpty) return msg;
+    }
+    return e.toString();
   }
 
   Future<bool> createSchedule(Map<String, dynamic> data, {String role = 'admin'}) async {
@@ -77,7 +94,7 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
       state = state.copyWith(isLoading: false, error: result['message']);
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractError(e));
       return false;
     }
   }
@@ -97,7 +114,7 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
       state = state.copyWith(isLoading: false, error: result['message']);
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractError(e));
       return false;
     }
   }

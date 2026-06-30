@@ -16,6 +16,7 @@ class StudentScheduleController extends Controller
             ->when($request->day_of_week, fn($q, $v) => $q->where('day_of_week', $v))
             ->when($request->status, fn($q, $v) => $q->where('status', $v))
             ->when($request->course_id, fn($q, $v) => $q->where('course_id', $v))
+            ->when($request->level_id, fn($q, $v) => $q->where(fn($q) => $q->whereNull('level_id')->orWhere('level_id', $v)))
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();

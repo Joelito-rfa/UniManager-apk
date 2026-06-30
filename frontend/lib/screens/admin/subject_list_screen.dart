@@ -64,6 +64,7 @@ class _SubjectListScreenState extends ConsumerState<SubjectListScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Matières')),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/admin/subjects/add'),
         child: const Icon(Icons.add_rounded),

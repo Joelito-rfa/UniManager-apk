@@ -3,12 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/api_constants.dart';
 import '../../providers/course_provider.dart';
-import '../../providers/level_provider.dart';
-import '../../models/level_model.dart';
+import '../../core/network/dio_client.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/error_widget.dart';
 import '../../widgets/common/empty_state.dart';
-import '../../widgets/common/filter_bar.dart';
 
 class StudentCourseListScreen extends ConsumerStatefulWidget {
   const StudentCourseListScreen({super.key});
@@ -18,27 +16,41 @@ class StudentCourseListScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentCourseListScreenState extends ConsumerState<StudentCourseListScreen> {
-  int? _selectedLevelId;
-  List<LevelModel> _levels = [];
+  int? _levelId;
+  bool _loadingProfile = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(courseProvider.notifier).loadCourses(endpoint: ApiConstants.studentCourses);
-      _loadFilters();
-    });
+    _loadProfile();
   }
 
-  Future<void> _loadFilters() async {
-    final levels = await ref.read(allLevelsProvider.future);
-    if (mounted) setState(() => _levels = levels);
+  Future<void> _loadProfile() async {
+    try {
+      final dio = ref.read(dioClientProvider);
+      final response = await dio.get(ApiConstants.studentProfile);
+      final data = response.data;
+      final profile = data['data'] as Map<String, dynamic>? ?? data as Map<String, dynamic>?;
+      final levelId = profile?['level_id'] as int? ?? profile?['level']?['id'] as int?;
+      if (mounted) {
+        setState(() => _levelId = levelId);
+        ref.read(courseProvider.notifier).loadCourses(
+          endpoint: ApiConstants.courses,
+          levelId: levelId,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _loadingProfile = false);
+        ref.read(courseProvider.notifier).loadCourses(endpoint: ApiConstants.courses);
+      }
+    }
   }
 
-  void _onFilterChanged() {
+  void _reload() {
     ref.read(courseProvider.notifier).loadCourses(
-      levelId: _selectedLevelId,
-      endpoint: ApiConstants.studentCourses,
+      endpoint: ApiConstants.courses,
+      levelId: _levelId,
     );
   }
 
@@ -48,39 +60,18 @@ class _StudentCourseListScreenState extends ConsumerState<StudentCourseListScree
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cours')),
-      body: Column(
-        children: [
-          FilterBar(
-            dropdowns: [
-              FilterDropdown(
-                label: 'Niveau',
-                value: _selectedLevelId,
-                options: [
-                  const FilterOption(value: null, label: 'Tous'),
-                  ..._levels.map((l) =>
-                    FilterOption(value: l.id, label: '${l.code} - ${l.name}')),
-                ],
-                onChanged: (v) {
-                  setState(() => _selectedLevelId = v as int?);
-                  _onFilterChanged();
-                },
-              ),
-            ],
-          ),
-          Expanded(child: _buildBody(state, theme)),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Mes cours')),
+      body: _buildBody(state, theme),
     );
   }
 
   Widget _buildBody(CourseState state, ThemeData theme) {
-    if (state.isLoading && state.courses.isEmpty) return const LoadingWidget(message: 'Chargement des cours...');
-    if (state.error != null && state.courses.isEmpty) return AppErrorWidget(message: state.error!, onRetry: () => ref.read(courseProvider.notifier).loadCourses(endpoint: ApiConstants.studentCourses));
+    if ((state.isLoading || _loadingProfile) && state.courses.isEmpty) return const LoadingWidget(message: 'Chargement des cours...');
+    if (state.error != null && state.courses.isEmpty) return AppErrorWidget(message: state.error!, onRetry: _reload);
     if (state.courses.isEmpty) return const EmptyState(title: 'Aucun cours', subtitle: 'Aucun cours disponible pour le moment.', icon: Icons.menu_book_outlined);
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(courseProvider.notifier).loadCourses(endpoint: ApiConstants.studentCourses),
+      onRefresh: () async => _reload(),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: state.courses.length,

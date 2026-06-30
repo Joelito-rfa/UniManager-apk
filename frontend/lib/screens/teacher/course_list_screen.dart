@@ -116,11 +116,15 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
                       ),
                     ),
                     IconButton(
+                      icon: Icon(Icons.grade_rounded, color: const Color(0xFFF59E0B), size: 20),
+                      tooltip: 'Saisir les notes',
+                      onPressed: () => context.go('/teacher/grades/course/${course.id}'),
+                    ),
+                    IconButton(
                       icon: Icon(Icons.folder_outlined, color: theme.colorScheme.primary, size: 20),
                       tooltip: 'Ressources',
                       onPressed: () => context.push('/teacher/courses/${course.id}/resources', extra: course),
                     ),
-                    Icon(Icons.chevron_right_rounded, color: theme.colorScheme.outline, size: 22),
                   ],
                 ),
               ),

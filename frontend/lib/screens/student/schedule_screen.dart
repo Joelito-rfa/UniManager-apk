@@ -7,7 +7,6 @@ import '../../widgets/common/empty_state.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/network/dio_client.dart';
-import '../../models/course_model.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -16,29 +15,52 @@ class ScheduleScreen extends ConsumerStatefulWidget {
   ConsumerState<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
+const _dayToFrench = {
+  'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi',
+  'Thursday': 'Jeudi', 'Friday': 'Vendredi', 'Saturday': 'Samedi', 'Sunday': 'Dimanche',
+};
+
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
-  List<CourseModel> _courses = [];
-  int? _selectedCourseId;
+  int? _levelId;
+  bool _profileLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadCourses();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(scheduleProvider.notifier).loadSchedules(role: 'student');
-    });
+    _loadProfile();
   }
 
-  Future<void> _loadCourses() async {
+  Future<void> _loadProfile() async {
     try {
       final dio = ref.read(dioClientProvider);
-      final response = await dio.get(ApiConstants.studentCourses);
+      final response = await dio.get(ApiConstants.studentProfile);
       final data = response.data;
-      final list = (data['data'] as List)
-          .map((json) => CourseModel.fromJson(json))
-          .toList();
-      if (mounted) setState(() { _courses = list; });
-    } catch (_) {}
+      final profile = data['data'] as Map<String, dynamic>? ?? data as Map<String, dynamic>?;
+      final levelId = profile?['level_id'] as int? ?? profile?['level']?['id'] as int?;
+      if (mounted) {
+        setState(() => _levelId = levelId);
+        ref.read(scheduleProvider.notifier).loadSchedules(
+          role: 'student',
+          filters: levelId != null ? {'level_id': levelId} : null,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _profileLoading = false);
+        ref.read(scheduleProvider.notifier).loadSchedules(role: 'student');
+      }
+    }
+  }
+
+  Future<void> _reload() async {
+    if (_levelId != null) {
+      ref.read(scheduleProvider.notifier).loadSchedules(
+        role: 'student',
+        filters: {'level_id': _levelId},
+      );
+    } else {
+      _loadProfile();
+    }
   }
 
   @override
@@ -53,39 +75,13 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   Widget _buildBody(ScheduleState state, ThemeData theme) {
-    if (state.isLoading) return const LoadingWidget(message: 'Chargement...');
-    if (state.error != null) return AppErrorWidget(message: state.error!, onRetry: () => ref.read(scheduleProvider.notifier).loadSchedules(role: 'student'));
+    if (state.isLoading && _profileLoading) return const LoadingWidget(message: 'Chargement...');
+    if (state.error != null && state.schedules.isEmpty) return AppErrorWidget(message: state.error!, onRetry: _reload);
 
     return DefaultTabController(
       length: 5,
       child: Column(
         children: [
-          if (_courses.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: DropdownButtonFormField<int?>(
-                initialValue: _selectedCourseId,
-                decoration: InputDecoration(
-                  labelText: 'Filtrer par matière',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
-                  isDense: true,
-                ),
-                items: [
-                  DropdownMenuItem(value: null, child: Text('Toutes les matières', style: theme.textTheme.bodyMedium)),
-                  ..._courses.map((c) => DropdownMenuItem(value: c.id, child: Text(c.subjectName ?? '', overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyMedium))),
-                ],
-                onChanged: (v) {
-                  setState(() => _selectedCourseId = v);
-                  ref.read(scheduleProvider.notifier).loadSchedules(
-                    role: 'student',
-                    filters: v != null ? {'course_id': v} : null,
-                  );
-                },
-              ),
-            ),
           Container(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             decoration: BoxDecoration(
@@ -106,7 +102,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             child: TabBarView(
               children: AppConstants.weekDays.take(5).map((day) {
                 final daySchedules = state.schedules
-                    .where((s) => s.dayOfWeek.toLowerCase() == day.toLowerCase())
+                    .where((s) => s.dayOfWeek.toLowerCase() == (_dayToFrench.keys.firstWhere(
+                      (k) => _dayToFrench[k] == day, orElse: () => day,
+                    )).toLowerCase())
                     .toList()
                   ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
@@ -115,7 +113,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: () => ref.read(scheduleProvider.notifier).loadSchedules(role: 'student'),
+                  onRefresh: _reload,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: daySchedules.length,

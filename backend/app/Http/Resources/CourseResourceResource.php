@@ -17,6 +17,8 @@ class CourseResourceResource extends JsonResource
             'description' => $this->description,
             'type' => $this->type,
             'file_path' => $this->file_path,
+            'thumbnail_path' => $this->thumbnail_path,
+            'thumbnail_url' => $this->thumbnail_url,
             'file_url' => $this->file_url,
             'file_name' => $this->file_name,
             'file_size' => $this->file_size,

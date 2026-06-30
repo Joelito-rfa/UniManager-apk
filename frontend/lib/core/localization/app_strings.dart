@@ -62,6 +62,33 @@ class AppStrings {
   final String october;
   final String november;
   final String december;
+  final String dashboard;
+  final String students;
+  final String teachers;
+  final String departments;
+  final String programs;
+  final String subjects;
+  final String courses;
+  final String classrooms;
+  final String schedules;
+  final String enrollments;
+  final String grades;
+  final String results;
+  final String admissions;
+  final String exams;
+  final String messaging;
+  final String settings;
+  final String myCourses;
+  final String gradeEntry;
+  final String resources;
+  final String myGrades;
+  final String admin;
+  final String professor;
+  final String student;
+  final String confirm;
+  final String cancel;
+  final String delete;
+  final String add;
 
   const AppStrings({
     required this.search,
@@ -124,6 +151,33 @@ class AppStrings {
     required this.october,
     required this.november,
     required this.december,
+    required this.dashboard,
+    required this.students,
+    required this.teachers,
+    required this.departments,
+    required this.programs,
+    required this.subjects,
+    required this.courses,
+    required this.classrooms,
+    required this.schedules,
+    required this.enrollments,
+    required this.grades,
+    required this.results,
+    required this.admissions,
+    required this.exams,
+    required this.messaging,
+    required this.settings,
+    required this.myCourses,
+    required this.gradeEntry,
+    required this.resources,
+    required this.myGrades,
+    required this.admin,
+    required this.professor,
+    required this.student,
+    required this.confirm,
+    required this.cancel,
+    required this.delete,
+    required this.add,
   });
 }
 
@@ -178,6 +232,33 @@ final appStringsProvider = Provider<AppStrings>((ref) {
         january: 'January', february: 'February', march: 'March', april: 'April',
         may: 'May', june: 'June', july: 'July', august: 'August',
         september: 'September', october: 'October', november: 'November', december: 'December',
+        dashboard: 'Dashboard',
+        students: 'Students',
+        teachers: 'Teachers',
+        departments: 'Departments',
+        programs: 'Programs',
+        subjects: 'Subjects',
+        courses: 'Courses',
+        classrooms: 'Classrooms',
+        schedules: 'Schedules',
+        enrollments: 'Enrollments',
+        grades: 'Grades',
+        results: 'Results',
+        admissions: 'Admissions',
+        exams: 'Exams',
+        messaging: 'Messaging',
+        settings: 'Settings',
+        myCourses: 'My Courses',
+        gradeEntry: 'Grade Entry',
+        resources: 'Resources',
+        myGrades: 'My Grades',
+        admin: 'Admin',
+        professor: 'Professor',
+        student: 'Student',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        delete: 'Delete',
+        add: 'Add',
       );
     case 'mg':
       return AppStrings(
@@ -227,6 +308,33 @@ final appStringsProvider = Provider<AppStrings>((ref) {
         january: 'Janoary', february: 'Febroary', march: 'Martsa', april: 'Aprily',
         may: 'Mey', june: 'Jona', july: 'Jolay', august: 'Aogositra',
         september: 'Septambra', october: 'Oktobra', november: 'Novambra', december: 'Desambra',
+        dashboard: 'Tabilao',
+        students: 'Mpianatra',
+        teachers: 'Mpampianatra',
+        departments: 'Sampana',
+        programs: 'Fandaharana',
+        subjects: 'Lohahevitra',
+        courses: 'Fampianarana',
+        classrooms: 'Efitrano',
+        schedules: 'Fandaharam-potoana',
+        enrollments: 'Fisoratana',
+        grades: 'Naoty',
+        results: 'Vokatra',
+        admissions: 'Fidirana',
+        exams: 'Fanadinana',
+        messaging: 'Hafatra',
+        settings: 'Safidy',
+        myCourses: 'Fampianarako',
+        gradeEntry: 'Fidirana naoty',
+        resources: 'Fitaovana',
+        myGrades: 'Naotiko',
+        admin: 'Admin',
+        professor: 'Mpampianatra',
+        student: 'Mpianatra',
+        confirm: 'Hanamafy',
+        cancel: 'Hiverina',
+        delete: 'Hamafa',
+        add: 'Hanampy',
       );
     default:
       return AppStrings(
@@ -276,6 +384,33 @@ final appStringsProvider = Provider<AppStrings>((ref) {
         january: 'Janvier', february: 'Février', march: 'Mars', april: 'Avril',
         may: 'Mai', june: 'Juin', july: 'Juillet', august: 'Août',
         september: 'Septembre', october: 'Octobre', november: 'Novembre', december: 'Décembre',
+        dashboard: 'Tableau de bord',
+        students: 'Étudiants',
+        teachers: 'Enseignants',
+        departments: 'Départements',
+        programs: 'Filières',
+        subjects: 'Matières',
+        courses: 'Cours',
+        classrooms: 'Salles',
+        schedules: 'Emplois',
+        enrollments: 'Inscriptions',
+        grades: 'Notes',
+        results: 'Résultats',
+        admissions: 'Admissions',
+        exams: 'Examens',
+        messaging: 'Messagerie',
+        settings: 'Paramètres',
+        myCourses: 'Mes cours',
+        gradeEntry: 'Saisie des notes',
+        resources: 'Ressources',
+        myGrades: 'Mes notes',
+        admin: 'Admin',
+        professor: 'Professeur',
+        student: 'Étudiant',
+        confirm: 'Confirmer',
+        cancel: 'Annuler',
+        delete: 'Supprimer',
+        add: 'Ajouter',
       );
   }
 });

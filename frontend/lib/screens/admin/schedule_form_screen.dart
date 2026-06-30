@@ -150,16 +150,23 @@ class _ScheduleFormScreenState extends ConsumerState<ScheduleFormScreen> {
       'group': _groupController.text.trim(),
     };
 
+    final isEdit = widget.scheduleId != null;
     bool success;
-    if (widget.scheduleId != null) {
+    if (isEdit) {
       success = await ref.read(scheduleProvider.notifier).updateSchedule(widget.scheduleId!, data);
     } else {
       success = await ref.read(scheduleProvider.notifier).createSchedule(data);
     }
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      if (success) context.pop();
+    setState(() => _isLoading = false);
+
+    if (mounted && success) {
+      if (context.mounted) context.pop();
+    } else if (mounted) {
+      final error = ref.read(scheduleProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error ?? 'Erreur lors de la création du créneau')),
+      );
     }
   }
 }

@@ -79,7 +79,7 @@ class FilterDropdown extends StatelessWidget {
           ),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+        fillColor: Colors.white,
         isDense: true,
       ),
       items: options.map((opt) {

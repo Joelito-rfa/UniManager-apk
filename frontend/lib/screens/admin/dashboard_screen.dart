@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../models/dashboard_stats_model.dart';
 import '../../widgets/common/kpi_card.dart';
@@ -31,7 +32,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       duration: const Duration(milliseconds: 600),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(dashboardProvider.notifier).loadDashboard();
+      final auth = ref.read(authProvider);
+      if (auth.status == AuthStatus.authenticated) {
+        ref.read(dashboardProvider.notifier).loadDashboard();
+      }
       _animController.forward();
     });
   }
@@ -47,8 +51,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final theme = Theme.of(context);
     final state = ref.watch(dashboardProvider);
 
+    return RefreshIndicator(
+      onRefresh: () => ref.read(dashboardProvider.notifier).loadDashboard(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: _buildContent(theme, state),
+      ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme, DashboardState state) {
+    final now = DateTime.now();
+
     if (state.isLoading) {
-      return const LoadingWidget(message: 'Chargement du tableau de bord...');
+      return const SizedBox(
+        height: 400,
+        child: LoadingWidget(message: 'Chargement du tableau de bord...'),
+      );
     }
     if (state.error != null) {
       return AppErrorWidget(
@@ -62,9 +81,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
     final screenWidth = MediaQuery.of(context).size.width;
     final isWide = screenWidth >= 1200;
-    final now = DateTime.now();
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

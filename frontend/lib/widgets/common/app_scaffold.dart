@@ -79,6 +79,7 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       key: _scaffoldKey,
       drawer: Drawer(
         elevation: 0,
+        width: MediaQuery.of(context).size.width * 0.78,
         child: Sidebar(
           isCollapsed: false,
           onToggle: () => Navigator.of(context).pop(),

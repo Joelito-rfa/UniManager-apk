@@ -9,6 +9,7 @@ use App\Http\Resources\CourseResourceResource;
 use App\Models\Course;
 use App\Models\CourseResource;
 use App\Models\User;
+use App\Services\VideoThumbnailService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,6 +17,11 @@ class CourseResourceController extends Controller
 {
     public function index(Course $course): JsonResponse
     {
+        $teacher = auth()->user()->teacher;
+        if (!$teacher || $course->teacher_id !== $teacher->id) {
+            return response()->json(['success' => false, 'message' => 'L\'accès n\'est pas autorisé'], 403);
+        }
+
         $resources = $course->resources()->orderBy('order_column')->get();
 
         return response()->json([
@@ -37,9 +43,18 @@ class CourseResourceController extends Controller
             $file = $request->file('file');
             $path = $file->store('resources/' . $course->id, 'public');
             $data['file_path'] = $path;
+            $data['file_url'] = Storage::disk('public')->url($path);
             $data['file_name'] = $file->getClientOriginalName();
             $data['file_size'] = $file->getSize();
             $data['mime_type'] = $file->getMimeType();
+
+            if ($data['type'] === 'video') {
+                $thumbnailService = app(VideoThumbnailService::class);
+                $thumbnailPath = $thumbnailService->generate($path);
+                if ($thumbnailPath) {
+                    $data['thumbnail_path'] = $thumbnailPath;
+                }
+            }
         }
 
         $data['order_column'] = $data['order_column'] ?? $course->resources()->count();
@@ -70,6 +85,11 @@ class CourseResourceController extends Controller
 
     public function show(CourseResource $resource): JsonResponse
     {
+        $teacher = auth()->user()->teacher;
+        if (!$teacher || $resource->course->teacher_id !== $teacher->id) {
+            return response()->json(['success' => false, 'message' => 'L\'accès n\'est pas autorisé'], 403);
+        }
+
         return response()->json([
             'success' => true,
             'data' => new CourseResourceResource($resource),
@@ -89,12 +109,25 @@ class CourseResourceController extends Controller
             if ($resource->file_path) {
                 Storage::disk('public')->delete($resource->file_path);
             }
+
+            $thumbnailService = app(VideoThumbnailService::class);
+            $thumbnailService->delete($resource->thumbnail_path);
+            $data['thumbnail_path'] = null;
+
             $file = $request->file('file');
             $path = $file->store('resources/' . $resource->course_id, 'public');
             $data['file_path'] = $path;
+            $data['file_url'] = Storage::disk('public')->url($path);
             $data['file_name'] = $file->getClientOriginalName();
             $data['file_size'] = $file->getSize();
             $data['mime_type'] = $file->getMimeType();
+
+            if ($data['type'] === 'video') {
+                $thumbnailPath = $thumbnailService->generate($path);
+                if ($thumbnailPath) {
+                    $data['thumbnail_path'] = $thumbnailPath;
+                }
+            }
         }
 
         $resource->update($data);
@@ -117,6 +150,9 @@ class CourseResourceController extends Controller
             Storage::disk('public')->delete($resource->file_path);
         }
 
+        $thumbnailService = app(VideoThumbnailService::class);
+        $thumbnailService->delete($resource->thumbnail_path);
+
         $resource->delete();
 
         return response()->json([
@@ -127,10 +163,31 @@ class CourseResourceController extends Controller
 
     public function download(CourseResource $resource)
     {
+        $teacher = auth()->user()->teacher;
+        if (!$teacher || $resource->course->teacher_id !== $teacher->id) {
+            return response()->json(['success' => false, 'message' => 'L\'accès n\'est pas autorisé'], 403);
+        }
+
         if (!$resource->file_path || !Storage::disk('public')->exists($resource->file_path)) {
             return response()->json(['success' => false, 'message' => 'Le fichier est introuvable'], 404);
         }
 
-        return Storage::disk('public')->download($resource->file_path, $resource->file_name);
+        $filePath = Storage::disk('public')->path($resource->file_path);
+        $mimeType = Storage::disk('public')->mimeType($resource->file_path) ?? 'application/octet-stream';
+
+        $disposition = ($resource->type === 'video' || $resource->type === 'pdf') ? 'inline' : 'attachment';
+
+        return response()->stream(function () use ($filePath) {
+            $stream = fopen($filePath, 'rb');
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => "$disposition; filename=\"{$resource->file_name}\"",
+            'Content-Length' => filesize($filePath),
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+        ]);
     }
 }

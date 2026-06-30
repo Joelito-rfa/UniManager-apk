@@ -11,7 +11,13 @@ class StudentCourseController extends Controller
 {
     public function index(): JsonResponse
     {
-        $courses = Course::with(['subject', 'level', 'teacher.user'])
+        $student = auth()->user()->student;
+
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Profil étudiant introuvable'], 404);
+        }
+
+        $courses = Course::with(['subject', 'level', 'teacher.user', 'classroom'])
             ->orderBy('created_at', 'desc')
             ->get();
 

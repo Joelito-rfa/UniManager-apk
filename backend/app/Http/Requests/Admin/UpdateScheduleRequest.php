@@ -45,7 +45,6 @@ class UpdateScheduleRequest extends FormRequest
                 ->where('id', '!=', $scheduleId)
                 ->where('classroom_id', $data['classroom_id'])
                 ->where('day_of_week', $data['day_of_week'])
-                ->where('status', 'active')
                 ->where(function ($q) use ($data) {
                     $q->whereBetween('start_time', [$data['start_time'], $data['end_time']])
                       ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']])
@@ -69,7 +68,6 @@ class UpdateScheduleRequest extends FormRequest
                         ->where('schedules.id', '!=', $scheduleId)
                         ->where('courses.teacher_id', $course->teacher_id)
                         ->where('schedules.day_of_week', $data['day_of_week'])
-                        ->where('schedules.status', 'active')
                         ->where(function ($q) use ($data) {
                             $q->whereBetween('schedules.start_time', [$data['start_time'], $data['end_time']])
                               ->orWhereBetween('schedules.end_time', [$data['start_time'], $data['end_time']])

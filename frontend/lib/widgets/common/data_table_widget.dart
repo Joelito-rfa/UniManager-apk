@@ -64,12 +64,12 @@ class _DataTableWidgetState extends State<DataTableWidget> {
               decoration: InputDecoration(
                 hintText: 'Rechercher...',
                 hintStyle: TextStyle(
-                  color: Colors.white.withAlpha(150),
+                  color: theme.colorScheme.onSurfaceVariant.withAlpha(150),
                   fontSize: 14,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -77,7 +77,7 @@ class _DataTableWidgetState extends State<DataTableWidget> {
                         icon: Icon(
                           Icons.clear_rounded,
                           size: 18,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () {
                           _searchController.clear();
@@ -86,7 +86,7 @@ class _DataTableWidgetState extends State<DataTableWidget> {
                       )
                     : null,
                 filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

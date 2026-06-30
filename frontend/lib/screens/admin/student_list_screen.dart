@@ -72,6 +72,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Étudiants')),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/admin/students/add'),
         child: const Icon(Icons.add_rounded),

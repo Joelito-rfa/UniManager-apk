@@ -6,6 +6,7 @@ class CourseResourceModel {
   final String? description;
   final String type;
   final String? filePath;
+  final String? thumbnailUrl;
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
@@ -26,6 +27,7 @@ class CourseResourceModel {
     this.description,
     required this.type,
     this.filePath,
+    this.thumbnailUrl,
     this.fileUrl,
     this.fileName,
     this.fileSize,
@@ -48,6 +50,7 @@ class CourseResourceModel {
       description: json['description'] as String?,
       type: json['type'] as String? ?? 'pdf',
       filePath: json['file_path'] as String?,
+      thumbnailUrl: json['thumbnail_url'] as String?,
       fileUrl: json['file_url'] as String?,
       fileName: json['file_name'] as String?,
       fileSize: json['file_size'] as int?,
@@ -75,6 +78,7 @@ class CourseResourceModel {
       'description': description,
       'type': type,
       'file_path': filePath,
+      'thumbnail_url': thumbnailUrl,
       'file_url': fileUrl,
       'file_name': fileName,
       'file_size': fileSize,
@@ -97,6 +101,7 @@ class CourseResourceModel {
     String? description,
     String? type,
     String? filePath,
+    String? thumbnailUrl,
     String? fileUrl,
     String? fileName,
     int? fileSize,
@@ -117,6 +122,7 @@ class CourseResourceModel {
       description: description ?? this.description,
       type: type ?? this.type,
       filePath: filePath ?? this.filePath,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       fileUrl: fileUrl ?? this.fileUrl,
       fileName: fileName ?? this.fileName,
       fileSize: fileSize ?? this.fileSize,

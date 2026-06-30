@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/utils/validators.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../core/errors/app_exception.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
 import '../../config/theme_config.dart';
@@ -1231,6 +1232,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
               response.message ?? 'Étudiant non trouvé';
         });
       }
+    } on AppException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isVerifying = false;
+        _verificationError = e.message;
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -1272,6 +1279,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
               response.message ?? 'Enseignant non trouvé';
         });
       }
+    } on AppException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isVerifying = false;
+        _verificationError = e.message;
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {

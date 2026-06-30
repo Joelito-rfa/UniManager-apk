@@ -77,7 +77,7 @@ class _ScheduleListScreenState extends ConsumerState<ScheduleListScreen> {
           Container(
             margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

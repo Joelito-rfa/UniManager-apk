@@ -54,8 +54,8 @@ class AuthService {
       },
     );
     final data = response.data;
-    if (data['token'] != null) {
-      final token = data['token'] as String;
+    if (data['access_token'] != null) {
+      final token = data['access_token'] as String;
       final userData = data['user'] as Map<String, dynamic>;
       final user = UserModel.fromJson(userData);
       await _storageService.saveToken(token);
@@ -81,8 +81,8 @@ class AuthService {
       },
     );
     final data = response.data;
-    if (data['token'] != null) {
-      final token = data['token'] as String;
+    if (data['access_token'] != null) {
+      final token = data['access_token'] as String;
       final userData = data['user'] as Map<String, dynamic>;
       final user = UserModel.fromJson(userData);
       await _storageService.saveToken(token);
@@ -110,8 +110,8 @@ class AuthService {
       },
     );
     final data = response.data;
-    if (data['token'] != null) {
-      final token = data['token'] as String;
+    if (data['access_token'] != null) {
+      final token = data['access_token'] as String;
       final userData = data['user'] as Map<String, dynamic>;
       final user = UserModel.fromJson(userData);
       await _storageService.saveToken(token);
@@ -240,5 +240,18 @@ class AuthService {
       return ApiResponse.success(null, message: data['message']);
     }
     return ApiResponse.error(data['message'] ?? 'Une erreur est survenue');
+  }
+
+  Future<ApiResponse<String>> generateInvitationCode() async {
+    try {
+      final response = await _dioClient.post(ApiConstants.generateInvitationCode);
+      final data = response.data;
+      if (data['success'] == true) {
+        return ApiResponse.success(data['data']['code'] as String, message: data['message']);
+      }
+      return ApiResponse.error(data['message'] ?? 'Erreur lors de la génération du code');
+    } catch (e) {
+      return ApiResponse.error('Erreur de connexion : $e');
+    }
   }
 }

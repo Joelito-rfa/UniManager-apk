@@ -12,7 +12,7 @@ class CourseResource extends Model
 
     protected $fillable = [
         'code', 'course_id', 'title', 'description', 'type',
-        'file_path', 'file_name', 'file_size', 'mime_type',
+        'file_path', 'thumbnail_path', 'file_name', 'file_size', 'mime_type',
         'url', 'duration', 'order_column', 'is_published',
     ];
 
@@ -29,6 +29,14 @@ class CourseResource extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if ($this->thumbnail_path) {
+            return Storage::disk('public')->url($this->thumbnail_path);
+        }
+        return null;
     }
 
     public function getFileUrlAttribute(): ?string

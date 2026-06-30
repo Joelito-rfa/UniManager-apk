@@ -46,6 +46,22 @@ class StudentCourseResourceController extends Controller
             return response()->json(['success' => false, 'message' => 'Le fichier est introuvable'], 404);
         }
 
-        return Storage::disk('public')->download($resource->file_path, $resource->file_name);
+        $filePath = Storage::disk('public')->path($resource->file_path);
+        $mimeType = Storage::disk('public')->mimeType($resource->file_path) ?? 'application/octet-stream';
+
+        $disposition = ($resource->type === 'video' || $resource->type === 'pdf') ? 'inline' : 'attachment';
+
+        return response()->stream(function () use ($filePath) {
+            $stream = fopen($filePath, 'rb');
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => "$disposition; filename=\"{$resource->file_name}\"",
+            'Content-Length' => filesize($filePath),
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+        ]);
     }
 }

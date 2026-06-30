@@ -180,9 +180,7 @@ class _NotificationTile extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isRead
-                ? Colors.transparent
-                : theme.colorScheme.primary.withAlpha(8),
+            color: Colors.white,
             border: Border(
               bottom: BorderSide(
                 color: theme.colorScheme.outlineVariant,
@@ -237,7 +235,7 @@ class _NotificationTile extends StatelessWidget {
                     Text(
                       message,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
+                        color: Colors.black87,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -250,7 +248,7 @@ class _NotificationTile extends StatelessWidget {
                           createdAt,
                         ),
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.white.withAlpha(150),
+                          color: Colors.black54,
                         ),
                       ),
                   ],

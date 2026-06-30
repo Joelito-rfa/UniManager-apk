@@ -23,10 +23,11 @@ class AppTopBar extends ConsumerWidget {
     final role = user?.role ?? 'student';
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 16, vertical: 10),
+      padding: EdgeInsets.only(left: isMobile ? 12 : 16, right: isMobile ? 12 : 16, top: 10, bottom: 10),
       decoration: BoxDecoration(
         color: const Color(0xFF8B5CF6).withAlpha(15),
         border: Border(bottom: BorderSide(color: const Color(0xFF8B5CF6).withAlpha(60), width: 1)),
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
         boxShadow: [BoxShadow(color: const Color(0xFF8B5CF6).withAlpha(20), blurRadius: 12, offset: const Offset(0, 2))],
       ),
       child: isMobile ? _buildMobileLayout(context, theme, role) : _buildDesktopLayout(context, theme, role),
@@ -34,35 +35,55 @@ class AppTopBar extends ConsumerWidget {
   }
 
   Widget _buildDesktopLayout(BuildContext context, ThemeData theme, String role) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-      children: [
-        if (role == 'admin')
-          QuickActions(role: role)
-        else if (role == 'teacher')
-          QuickActions(role: role),
-        if (role != 'admin' && role != 'teacher')
-          const SizedBox(width: 8),
-        const SizedBox(width: 12),
-        SizedBox(width: 280, child: SearchBarWidget()),
-        const SizedBox(width: 24),
-        ClockWidget(),
-        const SizedBox(width: 8),
-        const SizedBox(width: 6),
-        ThemeSwitcher(),
-        const SizedBox(width: 6),
-        LanguageSelector(),
-        const SizedBox(width: 6),
-        NotificationCenter(role: role),
-        if (role != 'student') ...[
-          const SizedBox(width: 6),
-          MessageCenter(role: role),
-        ],
-        const SizedBox(width: 6),
-        ProfileMenu(role: role),
-      ],),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 880;
+        return Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (role == 'admin' || role == 'teacher')
+                    if (compact)
+                      QuickActions(role: role, compact: true)
+                    else ...[
+                      QuickActions(role: role),
+                      const SizedBox(width: 12),
+                    ]
+                  else
+                    const SizedBox(width: 8),
+                  Flexible(
+                    child: SizedBox(
+                      width: compact ? null : 280,
+                      child: SearchBarWidget(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: compact ? 4 : 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClockWidget(compact: compact),
+                SizedBox(width: compact ? 6 : 14),
+                ThemeSwitcher(),
+                SizedBox(width: compact ? 4 : 6),
+                LanguageSelector(),
+                SizedBox(width: compact ? 4 : 6),
+                NotificationCenter(role: role),
+                if (role != 'student') ...[
+                  SizedBox(width: compact ? 4 : 6),
+                  MessageCenter(role: role),
+                ],
+                SizedBox(width: compact ? 4 : 6),
+                ProfileMenu(role: role, compact: compact),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 

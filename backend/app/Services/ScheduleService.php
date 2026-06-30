@@ -48,7 +48,10 @@ class ScheduleService
             'day_of_week' => $data['day_of_week'],
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
-            'type' => $data['type'] ?? 'lecture',
+            'type' => $data['type'] ?? 'CM',
+            'group' => $data['group'] ?? null,
+            'session' => $data['session'] ?? null,
+            'status' => $data['status'] ?? 'active',
         ]);
     }
 
@@ -67,6 +70,9 @@ class ScheduleService
             'start_time' => $data['start_time'] ?? $schedule->start_time,
             'end_time' => $data['end_time'] ?? $schedule->end_time,
             'type' => $data['type'] ?? $schedule->type,
+            'group' => array_key_exists('group', $data) ? $data['group'] : $schedule->group,
+            'session' => array_key_exists('session', $data) ? $data['session'] : $schedule->session,
+            'status' => array_key_exists('status', $data) ? $data['status'] : $schedule->status,
         ]);
 
         return $schedule->fresh(['course.subject', 'course.teacher.user', 'classroom', 'level']);
